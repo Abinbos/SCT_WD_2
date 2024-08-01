@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch Web Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            margin: 0;
+        }
+
+        .stopwatch-container {
+            text-align: center;
+        }
+
+        #display {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .buttons button {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #34495e;
+            border: none;
+            color: #ecf0f1;
+            border-radius: 5px;
+        }
+
+        #laps {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        #laps li {
+            font-size: 18px;
+            margin-bottom: 5px;
+            background-color: #34495e;
+            padding: 5px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="stopwatch-container">
+        <h1>Stopwatch</h1>
+        <div id="display">00:00:00</div>
+        <div class="buttons">
+            <button id="startStopBtn">Start</button>
+            <button id="resetBtn">Reset</button>
+            <button id="lapBtn" disabled>Lap</button>
+        </div>
+        <ul id="laps"></ul>
+    </div>
+
+    <script>
+        let startTime = 0;
+        let updatedTime = 0;
+        let difference = 0;
+        let tInterval;
+        let running = false;
+        let laps = [];
+
+        const display = document.getElementById('display');
+        const startStopBtn = document.getElementById('startStopBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const lapBtn = document.getElementById('lapBtn');
+        const lapsUl = document.getElementById('laps');
+
+        startStopBtn.addEventListener('click', startStop);
+        resetBtn.addEventListener('click', reset);
+        lapBtn.addEventListener('click', recordLap);
+
+        function startStop() {
+            if (!running) {
+                startTime = new Date().getTime() - difference;
+                tInterval = setInterval(getShowTime, 1);
+                running = true;
+                startStopBtn.innerHTML = "Pause";
+                lapBtn.disabled = false;
+            } else {
+                clearInterval(tInterval);
+                running = false;
+                startStopBtn.innerHTML = "Start";
+                lapBtn.disabled = true;
+            }
+        }
+
+        function reset() {
+            clearInterval(tInterval);
+            running = false;
+            difference = 0;
+            display.innerHTML = "00:00:00";
+            laps = [];
+            lapsUl.innerHTML = "";
+            startStopBtn.innerHTML = "Start";
+            lapBtn.disabled = true;
+        }
+
+        function recordLap() {
+            if (running) {
+                const lapTime = display.innerHTML;
+                laps.push(lapTime);
+                const li = document.createElement('li');
+                li.innerHTML = "Lap " + laps.length + ": " + lapTime;
+                lapsUl.appendChild(li);
+            }
+        }
+
+        function getShowTime() {
+            updatedTime = new Date().getTime();
+            difference = updatedTime - startTime;
+
+            let hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            let minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            let seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+            hours = (hours < 10) ? "0" + hours : hours;
+            minutes = (minutes < 10) ? "0" + minutes : minutes;
+            seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+            display.innerHTML = hours + ":" + minutes + ":" + seconds;
+        }
+    </script>
+</body>
+</html>
